@@ -1,0 +1,17 @@
+/**
+ * Server-side Supabase client using the SERVICE-ROLE key.
+ * This bypasses RLS and must NEVER be imported into client components.
+ */
+import "server-only";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { serverEnv } from "@/lib/env";
+
+let cached: SupabaseClient | null = null;
+
+export function supabaseAdmin(): SupabaseClient {
+  if (cached) return cached;
+  cached = createClient(serverEnv.supabaseUrl(), serverEnv.supabaseServiceRoleKey(), {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  return cached;
+}

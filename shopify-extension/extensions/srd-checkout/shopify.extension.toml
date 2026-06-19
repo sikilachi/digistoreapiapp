@@ -1,0 +1,11 @@
+# Theme App Extension definition.
+# Deploy with:  shopify app deploy   (from the shopify-extension/ directory)
+# Then in the theme editor add the "SRD Digistore Checkout" app block to the
+# product template, and configure the App URL setting.
+
+api_version = "2025-01"
+
+[[extensions]]
+name = "SRD Digistore Checkout"
+handle = "srd-checkout"
+type = "theme"

@@ -1,0 +1,19 @@
+# Shopify app config for the Theme App Extension.
+# This is a PRIVATE/custom app. Fill client_id after creating the app in the
+# Shopify Partner dashboard (or use a custom app if you don't need OAuth).
+#
+# The Next.js bridge itself does NOT need to be a public Shopify app — it talks
+# to Shopify via the Admin API token. This config exists only so you can deploy
+# the storefront Theme App Extension with the Shopify CLI.
+
+name = "srd-digistore-bridge"
+# client_id = "YOUR_CLIENT_ID"
+application_url = "https://your-app.vercel.app"
+embedded = false
+
+[access_scopes]
+# Scopes needed by the Admin API token used server-side.
+scopes = "read_products,write_orders,read_orders,write_draft_orders"
+
+[webhooks]
+api_version = "2025-01"

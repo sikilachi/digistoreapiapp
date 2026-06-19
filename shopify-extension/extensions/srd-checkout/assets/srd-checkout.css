@@ -1,0 +1,109 @@
+/* SRD Digistore Checkout — storefront widget. Light, clean, green accent. */
+.srd-checkout {
+  --srd-green: #059669;
+  --srd-green-dark: #047857;
+  --srd-border: #e2e8f0;
+  --srd-ink: #0f172a;
+  --srd-muted: #64748b;
+  font-family: inherit;
+  color: var(--srd-ink);
+  max-width: 560px;
+}
+.srd-loading,
+.srd-error {
+  color: var(--srd-muted);
+  font-size: 14px;
+  padding: 12px 0;
+}
+.srd-error {
+  color: #b91c1c;
+}
+.srd-field {
+  margin-bottom: 16px;
+}
+.srd-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--srd-ink);
+}
+.srd-field select,
+.srd-field input,
+.srd-field textarea {
+  width: 100%;
+  border: 1px solid var(--srd-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: #fff;
+  outline: none;
+  box-sizing: border-box;
+}
+.srd-field select:focus,
+.srd-field input:focus,
+.srd-field textarea:focus {
+  border-color: #34d399;
+  box-shadow: 0 0 0 3px #d1fae5;
+}
+.srd-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 480px) {
+  .srd-options {
+    grid-template-columns: 1fr;
+  }
+}
+.srd-price-box {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin: 8px 0 16px;
+}
+.srd-price-label {
+  font-size: 13px;
+  color: var(--srd-muted);
+}
+.srd-price-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--srd-green-dark);
+}
+.srd-buy {
+  width: 100%;
+  background: var(--srd-green);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.srd-buy:hover {
+  background: var(--srd-green-dark);
+}
+.srd-buy:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.srd-note {
+  font-size: 12px;
+  color: var(--srd-muted);
+  margin-top: 10px;
+  text-align: center;
+}
+.srd-msg {
+  font-size: 13px;
+  margin-top: 10px;
+}
+.srd-msg.err {
+  color: #b91c1c;
+}

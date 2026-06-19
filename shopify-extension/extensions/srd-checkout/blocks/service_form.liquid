@@ -1,0 +1,45 @@
+{% comment %}
+  SRD Digistore Checkout — product page app block.
+
+  Renders a custom service form, hides the native Add-to-cart form (optional),
+  calculates the price server-side via the bridge app, and on "Buy Now"
+  redirects to a dynamically created Digistore24 checkout URL.
+
+  No API keys are present here. The block only knows the public App URL.
+{% endcomment %}
+
+<div
+  id="srd-checkout"
+  class="srd-checkout"
+  data-app-url="{{ block.settings.app_url }}"
+  data-handle="{{ product.handle }}"
+  data-product-id="{{ product.id }}"
+  data-hide-native="{{ block.settings.hide_native_form }}"
+>
+  <div class="srd-loading">Loading options…</div>
+</div>
+
+{{ 'srd-checkout.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'srd-checkout.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "SRD Digistore Checkout",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "app_url",
+      "label": "Bridge App URL",
+      "info": "Your deployed Next.js app, e.g. https://your-app.vercel.app (no trailing slash)",
+      "default": "https://your-app.vercel.app"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_native_form",
+      "label": "Hide native Add to cart / Buy buttons on this product",
+      "default": true
+    }
+  ]
+}
+{% endschema %}
