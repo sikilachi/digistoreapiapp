@@ -33,6 +33,9 @@ export const serverEnv = {
   digistoreApiKey: () => required("DIGISTORE_API_KEY"),
   digistoreIpnPassphrase: () => required("DIGISTORE_IPN_PASSPHRASE"),
   defaultCurrency: () => optional("DEFAULT_CURRENCY", "EUR"),
+  // Single Digistore "container" product used for ALL dynamic-price checkouts.
+  // The real price + product name are sent dynamically per request.
+  digistoreDefaultProductId: () => required("DIGISTORE_DEFAULT_PRODUCT_ID"),
 
   shopifyAdminToken: () => required("SHOPIFY_ADMIN_API_TOKEN"),
   shopifyStoreDomain: () => required("SHOPIFY_STORE_DOMAIN"),

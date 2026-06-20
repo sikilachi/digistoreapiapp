@@ -1,0 +1,103 @@
+{% comment %}
+  SRD — "Buy Now" → dynamic Digistore checkout override.
+
+  Paste this as a "Custom Liquid" block at the BOTTOM of your product template
+  (below the srd-smm-product-v2 section). No need to edit the section file.
+
+  It hijacks the section's Buy Now buttons so that, instead of using a
+  pre-stored per-variant Digistore URL, they call the bridge app which reads the
+  variant's price from Shopify and generates a dynamic Digistore checkout.
+  The native "Add to cart" button is hidden so customers can't bypass Digistore.
+{% endcomment %}
+<script>
+(function () {
+  var APP = "https://digistoreapiapp.vercel.app"; // bridge app base URL
+
+  function init() {
+    var vidInput = document.querySelector('[data-srd-variant-id]');
+    var linkInput = document.querySelector('[data-srd-link]');
+    var linkErr = document.querySelector('[data-srd-link-err]');
+    var buyBtns = document.querySelectorAll('[data-srd-buynow],[data-srd-buynow-mobile]');
+    if (!buyBtns.length) return;
+
+    // Hide native "Add to cart" so customers can't reach Shopify checkout.
+    document.querySelectorAll('.srd-btn-cart').forEach(function (b) { b.style.display = 'none'; });
+
+    function collectOptions() {
+      var opts = {};
+      document.querySelectorAll('.srd-field').forEach(function (f) {
+        var labelEl = f.querySelector('label');
+        var name = labelEl ? labelEl.textContent.replace('*', '').trim() : '';
+        if (!name) return;
+        var sel = f.querySelector('select');
+        if (sel && sel.selectedIndex >= 0) { opts[name] = sel.options[sel.selectedIndex].text.trim(); return; }
+        var checked = f.querySelector('input[type=radio]:checked');
+        if (checked) {
+          var badge = checked.closest('.srd-badge');
+          opts[name] = (badge ? badge.textContent : checked.value).trim();
+        }
+      });
+      return opts;
+    }
+
+    function onBuy(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var btn = e.currentTarget;
+      var variantId = vidInput ? vidInput.value : '';
+      var targetLink = linkInput ? linkInput.value : '';
+
+      if (linkInput && !targetLink.trim()) {
+        if (linkErr) linkErr.classList.add('show');
+        linkInput.classList.add('srd-err');
+        linkInput.focus();
+        return;
+      }
+      if (linkErr) linkErr.classList.remove('show');
+
+      var prev = btn.innerHTML;
+      btn.setAttribute('disabled', 'disabled');
+      btn.style.opacity = '0.7';
+
+      fetch(APP + '/api/public/checkout-variant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          handle: (/\/products\/([^/?#]+)/.exec(location.pathname) || [])[1] || '',
+          variantId: String(variantId),
+          targetLink: targetLink,
+          options: collectOptions(),
+          requireLink: !!linkInput
+        })
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          if (res.ok && res.j.checkoutUrl) {
+            window.location.href = res.j.checkoutUrl;
+          } else {
+            alert('Checkout could not be created. Please contact support.');
+            btn.removeAttribute('disabled'); btn.style.opacity = ''; btn.innerHTML = prev;
+          }
+        })
+        .catch(function () {
+          alert('Checkout could not be created. Please contact support.');
+          btn.removeAttribute('disabled'); btn.style.opacity = ''; btn.innerHTML = prev;
+        });
+    }
+
+    // Replace each Buy Now button to strip the theme's original handler, then bind ours.
+    buyBtns.forEach(function (btn) {
+      var clone = btn.cloneNode(true);
+      btn.parentNode.replaceChild(clone, btn);
+      clone.addEventListener('click', onBuy);
+    });
+  }
+
+  // Run after the theme's own section script has initialised.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(init, 300); });
+  } else {
+    setTimeout(init, 300);
+  }
+})();
+</script>

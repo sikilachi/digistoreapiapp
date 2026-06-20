@@ -23,6 +23,72 @@ function headers(): HeadersInit {
   };
 }
 
+export interface ShopifyVariantInfo {
+  variantId: string;
+  productId: string;
+  price: number; // major units, shop currency
+  variantTitle: string;
+  productTitle: string;
+  productHandle: string;
+  available: boolean;
+}
+
+/**
+ * Fetch a variant's authoritative price + titles from Shopify (server-side).
+ * The browser-submitted price is never trusted; this is the source of truth.
+ */
+export async function getVariantInfo(variantId: string): Promise<ShopifyVariantInfo | null> {
+  try {
+    const vRes = await fetch(`${adminBase()}/variants/${encodeURIComponent(variantId)}.json`, {
+      headers: headers(),
+      cache: "no-store",
+    });
+    if (!vRes.ok) return null;
+    const vJson = (await vRes.json()) as {
+      variant?: {
+        id: number;
+        product_id: number;
+        price: string;
+        title: string;
+        inventory_quantity?: number;
+        inventory_management?: string | null;
+      };
+    };
+    const v = vJson.variant;
+    if (!v) return null;
+
+    // Product (for title + handle shown on the Digistore order form).
+    let productTitle = "";
+    let productHandle = "";
+    try {
+      const pRes = await fetch(
+        `${adminBase()}/products/${v.product_id}.json?fields=title,handle`,
+        { headers: headers(), cache: "no-store" },
+      );
+      if (pRes.ok) {
+        const pJson = (await pRes.json()) as { product?: { title: string; handle: string } };
+        productTitle = pJson.product?.title ?? "";
+        productHandle = pJson.product?.handle ?? "";
+      }
+    } catch {
+      /* non-fatal: title is display-only */
+    }
+
+    const price = Number(v.price);
+    return {
+      variantId: String(v.id),
+      productId: String(v.product_id),
+      price: Number.isFinite(price) ? price : 0,
+      variantTitle: v.title ?? "",
+      productTitle,
+      productHandle,
+      available: true,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export interface CreateOrderInput {
   email: string | null;
   firstName: string | null;
